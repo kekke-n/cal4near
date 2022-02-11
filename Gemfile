@@ -9,7 +9,7 @@ gem "rake", "~> 13.0"
 
 gem "rspec", "~> 3.0"
 
-gem 'google-apis-drive_v3'
+gem 'google-api-client'
 
 gem 'dotenv'
 
