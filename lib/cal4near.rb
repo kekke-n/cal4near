@@ -1,48 +1,67 @@
 # frozen_string_literal: true
 
 require_relative "cal4near/version"
+require "google/apis/calendar_v3"
+require "googleauth"
+require "googleauth/stores/file_token_store"
+require "date"
+require "fileutils"
 
 module Cal4near
   class Error < StandardError; end
 
-  def self.list
+  OOB_URI = "urn:ietf:wg:oauth:2.0:oob".freeze
+  APPLICATION_NAME = "Google Calendar API Ruby Quickstart".freeze
+  CREDENTIALS_PATH = "credentials.json".freeze
+  # The file token.yaml stores the user's access and refresh tokens, and is
+  # created automatically when the authorization flow completes for the first
+  # time.
+  TOKEN_PATH = "token.yaml".freeze
+  SCOPE = Google::Apis::CalendarV3::AUTH_CALENDAR_READONLY
+
+  START_DATE = DateTime.now
+  END_DATE = DateTime.now.next_day(30)
+
+  def self.events
     # Initialize the API
     service = Google::Apis::CalendarV3::CalendarService.new
     service.client_options.application_name = APPLICATION_NAME
     service.authorization = authorize
 
-    start_date = DateTime.now
-    end_date = DateTime.now.next_day(30)
     # Fetch the next 10 events for the user
     calendar_id = "primary"
     response = service.list_events(calendar_id,
-                                   single_events: true,
-                                   order_by: "startTime",
-                                   time_min: start_date.rfc3339,
-                                   time_max: end_date.rfc3339
+      single_events: true,
+      order_by: "startTime",
+      time_min: START_DATE.rfc3339,
+      time_max: END_DATE.rfc3339
     )
-    puts "Upcoming events:"
-    puts "No upcoming events found" if response.items.empty?
+    # puts "Upcoming events:"
+    # puts "No upcoming events found" if response.items.empty?
+    response.items
+  end
+
+  def self.list
     busy_list = []
-    response.items.each do |event|
-      start_date_time = event.start.date || event.start.date_time
-      end_date_time = event.end.date || event.end.date_time
+    events.each do |event|
+      # start_date_time = event.start.date || event.start.date_time
+      # end_date_time = event.end.date || event.end.date_time
 
       # start endが両方ともdate型の場合は終日の予定
       is_all_date = (event.start.date && event.end.date)
 
-      description =
-        if is_all_date
-          "#{start_date_time.strftime("%Y/%m/%d")} 終日"
-        else
-          if start_date_time.to_date == end_date_time.to_date
-            "#{start_date_time.strftime("%Y/%m/%d %-H:%M")}-#{end_date_time.strftime("%-H:%M")}"
-          else
-            "#{start_date_time.strftime("%Y/%m/%d %-H:%M")}-#{end_date_time.strftime("%Y/%m/%d %-H:%M")}"
-          end
-        end
-
-      puts "- [#{description}] #{event.summary} "
+      # カレンダーイベントの情報を出力する
+      # description =
+      #   if is_all_date
+      #     "#{start_date_time.strftime("%Y/%m/%d")} 終日"
+      #   else
+      #     if start_date_time.to_date == end_date_time.to_date
+      #       "#{start_date_time.strftime("%Y/%m/%d %-H:%M")}-#{end_date_time.strftime("%-H:%M")}"
+      #     else
+      #       "#{start_date_time.strftime("%Y/%m/%d %-H:%M")}-#{end_date_time.strftime("%Y/%m/%d %-H:%M")}"
+      #     end
+      #   end
+      # puts "- [#{description}] #{event.summary} "
 
       if !is_all_date
         busy_list << {
@@ -56,10 +75,10 @@ module Cal4near
     start_hour = 9
     end_hour = 19
 
-    puts "Free time:"
+    # puts "Free time:"
 
     result = {}
-    (start_date.to_date..end_date.to_date).each do |date|
+    (START_DATE.to_date..END_DATE.to_date).each do |date|
       result[date] ||= {}
 
       start_work_time = Time.new(date.year, date.month, date.day, start_hour, 0, 0)
@@ -87,7 +106,7 @@ module Cal4near
           end
         end
 
-        result[date][current_time][:free] = free
+          result[date][current_time][:free] = free
       end
     end
     result
@@ -120,21 +139,6 @@ module Cal4near
       puts "#{date.strftime("%Y/%m/%d")}(#{wdays[date.wday]}) #{spans.join(", ")}"
     end
   end
-
-  require "google/apis/calendar_v3"
-  require "googleauth"
-  require "googleauth/stores/file_token_store"
-  require "date"
-  require "fileutils"
-
-  OOB_URI = "urn:ietf:wg:oauth:2.0:oob".freeze
-  APPLICATION_NAME = "Google Calendar API Ruby Quickstart".freeze
-  CREDENTIALS_PATH = "credentials.json".freeze
-  # The file token.yaml stores the user's access and refresh tokens, and is
-  # created automatically when the authorization flow completes for the first
-  # time.
-  TOKEN_PATH = "token.yaml".freeze
-  SCOPE = Google::Apis::CalendarV3::AUTH_CALENDAR_READONLY
 
   ##
   # Ensure valid credentials, either by restoring from the saved credentials
