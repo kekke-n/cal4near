@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "cal4near"
+require "byebug"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

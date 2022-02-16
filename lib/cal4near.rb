@@ -22,6 +22,7 @@ module Cal4near
   START_DATE = DateTime.now
   END_DATE = DateTime.now.next_day(30)
 
+  # @return [Google::Apis::CalendarV3::Event]
   def self.events
     # Initialize the API
     service = Google::Apis::CalendarV3::CalendarService.new
