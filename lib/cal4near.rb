@@ -19,8 +19,13 @@ module Cal4near
   TOKEN_PATH = "token.yaml".freeze
   SCOPE = Google::Apis::CalendarV3::AUTH_CALENDAR_READONLY
 
+  # 空き時間を検索する日時の範囲
   START_DATE = DateTime.now
   END_DATE = DateTime.now.next_day(30)
+
+  # 空き時間を検索する時間の範囲
+  START_HOUR = 9
+  END_HOUR = 19
 
   # カレンダーに登録されているイベントを取得
   # @param [DateTime] start_date 対象期間の開始日時
@@ -41,32 +46,32 @@ module Cal4near
       time_max: end_date.rfc3339
     )
 
-    # puts "Upcoming events:"
-    # puts "No upcoming events found" if response.items.empty?
     response.items
   end
 
-  def self.list
+  # カレンダーの空き情報を取得
+  # @return [Hash]
+  # 　{
+  #     #<Date> => { <DateTime> => { :free => <Boolean> } }
+  #   }
+  # @@example 返り値のサンプルは以下
+  #   {
+  #     #<Date: 2022-02-18> => { 2022-02-18 10:00:00 +0900=>{ :free => false }
+  #   }
+  def self.free_times(
+    start_date = START_DATE,
+    end_date = END_DATE,
+    start_hour = START_HOUR,
+    end_hour = END_HOUR
+  )
     busy_list = []
-    events.each do |event|
-      # start_date_time = event.start.date || event.start.date_time
-      # end_date_time = event.end.date || event.end.date_time
+    events(start_date, end_date).each do |event|
 
       # start endが両方ともdate型の場合は終日の予定
       is_all_date = (event.start.date && event.end.date)
 
-      # カレンダーイベントの情報を出力する
-      # description =
-      #   if is_all_date
-      #     "#{start_date_time.strftime("%Y/%m/%d")} 終日"
-      #   else
-      #     if start_date_time.to_date == end_date_time.to_date
-      #       "#{start_date_time.strftime("%Y/%m/%d %-H:%M")}-#{end_date_time.strftime("%-H:%M")}"
-      #     else
-      #       "#{start_date_time.strftime("%Y/%m/%d %-H:%M")}-#{end_date_time.strftime("%Y/%m/%d %-H:%M")}"
-      #     end
-      #   end
-      # puts "- [#{description}] #{event.summary} "
+      # [デバッグ用]カレンダーイベントの情報を出力する
+      # stdout_calendar_info(event, is_all_date)
 
       if !is_all_date
         busy_list << {
@@ -76,14 +81,10 @@ module Cal4near
       end
     end
 
-    # 空き時間を検索する時間の範囲
-    start_hour = 9
-    end_hour = 19
-
     # puts "Free time:"
 
     result = {}
-    (START_DATE.to_date..END_DATE.to_date).each do |date|
+    (start_date.to_date..end_date.to_date).each do |date|
       result[date] ||= {}
 
       start_work_time = Time.new(date.year, date.month, date.day, start_hour, 0, 0)
@@ -118,7 +119,7 @@ module Cal4near
   end
 
   def self.stdout
-    result = list
+    result = free_times
     wdays = %w(日 月 火 水 木 金 土)
     # 出力
     result.each do |date, times|
@@ -167,5 +168,24 @@ module Cal4near
       )
     end
     credentials
+  end
+
+  private
+
+  def self.stdout_calendar_info(event, is_all_date)
+    start_date_time = event.start.date || event.start.date_time
+    end_date_time = event.end.date || event.end.date_time
+
+    description =
+      if is_all_date
+        "#{start_date_time.strftime("%Y/%m/%d")} 終日"
+      else
+        if start_date_time.to_date == end_date_time.to_date
+          "#{start_date_time.strftime("%Y/%m/%d %-H:%M")}-#{end_date_time.strftime("%-H:%M")}"
+        else
+          "#{start_date_time.strftime("%Y/%m/%d %-H:%M")}-#{end_date_time.strftime("%Y/%m/%d %-H:%M")}"
+        end
+      end
+    puts "- [#{description}] #{event.summary} "
   end
 end
