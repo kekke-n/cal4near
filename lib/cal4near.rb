@@ -22,21 +22,25 @@ module Cal4near
   START_DATE = DateTime.now
   END_DATE = DateTime.now.next_day(30)
 
+  # カレンダーに登録されているイベントを取得
+  # @param [DateTime] start_date 対象期間の開始日時
+  # @param [DateTime] end_date 対象期間の終了日時
   # @return [Google::Apis::CalendarV3::Event]
-  def self.events
+  def self.events(start_date, end_date)
     # Initialize the API
     service = Google::Apis::CalendarV3::CalendarService.new
     service.client_options.application_name = APPLICATION_NAME
     service.authorization = authorize
 
-    # Fetch the next 10 events for the user
     calendar_id = "primary"
-    response = service.list_events(calendar_id,
+    response = service.list_events(
+      calendar_id,
       single_events: true,
       order_by: "startTime",
-      time_min: START_DATE.rfc3339,
-      time_max: END_DATE.rfc3339
+      time_min: start_date.rfc3339,
+      time_max: end_date.rfc3339
     )
+
     # puts "Upcoming events:"
     # puts "No upcoming events found" if response.items.empty?
     response.items

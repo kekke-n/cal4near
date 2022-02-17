@@ -27,16 +27,21 @@ RSpec.describe Cal4near do
       ]
     }
 
+    let(:start_date) { DateTime.now }
+    let(:end_date) { DateTime.now.next_day(30) }
+
     before do
       allow(Cal4near).to receive(:events).and_return(moc_objs)
     end
 
+    subject { Cal4near.events(start_date, end_date) }
+
     it "return correct count objects" do
-      expect(Cal4near.events.length).to eq moc_objs.length
+      expect(subject.length).to eq moc_objs.length
     end
 
     context 'first event' do
-      let(:subject_event) { Cal4near.events[0] }
+      let(:subject_event) { subject[0] }
 
       it "start.date_time is correct" do
         expect(subject_event.start.date_time).to eq DateTime.new(2022, 1, 1, 10, 00, 00)
@@ -48,7 +53,7 @@ RSpec.describe Cal4near do
     end
 
     context 'second event' do
-      let(:subject_event) { Cal4near.events[1] }
+      let(:subject_event) { subject[1] }
 
       it "start.date_time is correct" do
         expect(subject_event.start.date_time).to eq DateTime.new(2022, 1, 2, 13, 00, 00)
