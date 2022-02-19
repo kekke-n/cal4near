@@ -6,7 +6,8 @@ require "googleauth"
 require "googleauth/stores/file_token_store"
 require "date"
 require "fileutils"
-require 'debug'
+require 'pry'
+require 'pry-byebug'
 
 module Cal4near
   class Error < StandardError; end
@@ -50,15 +51,14 @@ module Cal4near
     response.items
   end
 
+  DATE_FORMAT = "%Y-%m-%d"
+  DATE_TIME_FORMAT = "%Y-%m-%d %H:%M"
+
   # カレンダーの空き情報を取得
   # @return [Hash]
-  # 　{
-  #     #<Date> => { <DateTime> => { :free => <Boolean> } }
-  #   }
   # @example 返り値のサンプルは以下
-  #   {
-  #     #<Date: 2022-02-18> => { 2022-02-18 10:00:00 +0900=>{ :free => false }
-  #   }
+  #  "2022-03-21"=>
+  #   {"2022-03-21 09:00"=>{:free=>true},
   def self.free_times(
     start_date = START_DATE,
     end_date = END_DATE,
@@ -86,20 +86,20 @@ module Cal4near
 
     result = {}
     (start_date.to_date..end_date.to_date).each do |date|
-      result[date] ||= {}
+      result[date.strftime(DATE_FORMAT)] ||= {} # YYYY-MM-DD
 
       start_work_time = Time.new(date.year, date.month, date.day, start_hour, 0, 0)
       end_work_time = Time.new(date.year, date.month, date.day, end_hour, 0, 0)
 
-      start_work_time.to_i.step(end_work_time.to_i, 60*60).each_cons(2) do |c_time_int, n_time__int|
+      start_work_time.to_i.step(end_work_time.to_i, 60*60).each_cons(2) do |c_time_int, n_time_int|
         current_time = Time.at(c_time_int)
-        next_time = Time.at(n_time__int)
+        next_time = Time.at(n_time_int)
 
         # 現時刻より前はスキップ
         next if current_time.to_datetime < DateTime.now
 
         free = true
-        result[date][current_time] = {}
+        result[date.strftime(DATE_FORMAT)][current_time.strftime(DATE_TIME_FORMAT)] = {}
 
         busy_list.each do |busy|
           busy_start = busy[:start]
@@ -113,7 +113,7 @@ module Cal4near
           end
         end
 
-          result[date][current_time][:free] = free
+          result[date.strftime(DATE_FORMAT)][current_time.strftime(DATE_TIME_FORMAT)][:free] = free
       end
     end
     result
@@ -127,6 +127,7 @@ module Cal4near
       min_time = max_time = nil
       spans = []
       times.each do |time, info|
+        time = DateTime.parse(time)
         min_time ||= time
         max_time = time
         if info[:free]
@@ -143,7 +144,8 @@ module Cal4near
         spans << "#{min_time.strftime("%-H:%M")}-#{max_time.strftime("%-H:%M")}"
       end
 
-      puts "#{date.strftime("%Y/%m/%d")}(#{wdays[date.wday]}) #{spans.join(", ")}"
+      tmp_date = Date.parse(date)
+      puts "#{tmp_date.strftime("%Y/%m/%d")}(#{wdays[tmp_date.wday]}) #{spans.join(", ")}"
     end
   end
 

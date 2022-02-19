@@ -6,7 +6,7 @@ describe Cal4near do
     expect(Cal4near::VERSION).not_to be nil
   end
 
-  context ".events" do
+  context ".free_times" do
     include_context 'setup moc google event'
 
     let(:start_date) { DateTime.now }
@@ -16,33 +16,31 @@ describe Cal4near do
       allow(Cal4near).to receive(:events).and_return(moc_google_events)
     end
 
-    subject { Cal4near.events(start_date, end_date) }
+    let(:free_times) { Cal4near.free_times(start_date, end_date) }
 
-    it "return correct count objects" do
-      expect(subject.length).to eq moc_google_events.length
-    end
+    context 'tomorrow' do
+      let(:subject_date) { free_times[tomorrow.strftime("%Y-%m-%d")] }
+      let(:subject_time) { subject_date["#{tomorrow.strftime("%Y-%m-%d")} #{time}"] }
 
-    context 'first event' do
-      let(:subject_event) { subject[0] }
-
-      it "start.date_time is correct" do
-        expect(subject_event.start.date_time).to eq DateTime.new(2022, 1, 1, 10, 00, 00)
+      context '09:00' do
+        let(:time) { '09:00' }
+        it "is free." do
+          expect(subject_time[:free]).to be true
+        end
       end
 
-      it "start.end_time is correct" do
-        expect(subject_event.end.date_time).to eq DateTime.new(2022, 1, 1, 11, 00, 00)
-      end
-    end
-
-    context 'second event' do
-      let(:subject_event) { subject[1] }
-
-      it "start.date_time is correct" do
-        expect(subject_event.start.date_time).to eq DateTime.new(2022, 1, 2, 13, 00, 00)
+      context '10:00' do
+        let(:time) { '10:00' }
+        it "is not free. (planed event)" do
+          expect(subject_time[:free]).to be false
+        end
       end
 
-      it "start.end_time is correct" do
-        expect(subject_event.end.date_time).to eq DateTime.new(2022, 1, 2, 14, 00, 00)
+      context '11:00' do
+        let(:time) { '11:00' }
+        it "is free." do
+          expect(subject_time[:free]).to be true
+        end
       end
     end
   end

@@ -1,16 +1,23 @@
 shared_context 'setup moc google event' do
+  let(:today) { DateTime.now }
+  let(:tomorrow) { today.next_day(1) }
+  let(:tomorrow_ymd) { [tomorrow.year, tomorrow.month, tomorrow.day] }
+  let(:day_after_tomorrow) { today.next_day(2) }
+  let(:day_after_tomorrow_ymd) {
+    [day_after_tomorrow.year, day_after_tomorrow.month, day_after_tomorrow.day] }
+
   # 2022 1/1 10:00 - 11:00
   let(:event_params_1) {
     {
-      start: google_event_date_time(DateTime.new(2022, 1, 1, 10, 00, 00)),
-      end:   google_event_date_time(DateTime.new(2022, 1, 1, 11, 00, 00))
+      start: google_event_date_time(DateTime.new(*(tomorrow_ymd + [10, 00, 00, "+09:00"]))),
+      end:   google_event_date_time(DateTime.new(*(tomorrow_ymd + [11, 00, 00, "+09:00"])))
     }
   }
   # 2022 1/2 13:00 - 14:00
   let(:event_params_2) {
     {
-      start: google_event_date_time(DateTime.new(2022, 1, 2, 13, 00, 00)),
-      end:   google_event_date_time(DateTime.new(2022, 1, 2, 14, 00, 00))
+      start: google_event_date_time(DateTime.new(*(day_after_tomorrow_ymd + [13, 00, 00, "+09:00"]))),
+      end:   google_event_date_time(DateTime.new(*(day_after_tomorrow_ymd + [14, 00, 00, "+09:00"])))
     }
   }
   let(:moc_google_events) {

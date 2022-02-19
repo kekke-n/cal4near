@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "cal4near"
-require "debug"
+require "pry"
+require 'pry-byebug'
 
 Dir['./spec/support/**/*.rb'].sort.each { |f| require f }
