@@ -32,23 +32,18 @@ module Cal4near
   # カレンダーに登録されているイベントを取得
   # @param [DateTime] start_date 対象期間の開始日時
   # @param [DateTime] end_date 対象期間の終了日時
-  # @return [Google::Apis::CalendarV3::Event]
+  # @return [Array] Google::Apis::CalendarV3::Eventのリスト
   def self.events(start_date, end_date)
-    # Initialize the API
     service = Google::Apis::CalendarV3::CalendarService.new
     service.client_options.application_name = APPLICATION_NAME
     service.authorization = authorize
-
-    calendar_id = "primary"
-    response = service.list_events(
-      calendar_id,
+    service.list_events(
+      "primary",
       single_events: true,
       order_by: "startTime",
       time_min: start_date.rfc3339,
       time_max: end_date.rfc3339
-    )
-
-    response.items
+    ).items
   end
 
   DATE_FORMAT = "%Y-%m-%d"
@@ -57,8 +52,7 @@ module Cal4near
   # カレンダーの空き情報を取得
   # @return [Hash]
   # @example 返り値のサンプルは以下
-  #  "2022-03-21"=>
-  #   {"2022-03-21 09:00"=>{:free=>true},
+  #  "2022-03-21"=> {"2022-03-21 09:00"=>{:free=>true}
   def self.free_times(
     start_date = START_DATE,
     end_date = END_DATE,
@@ -67,14 +61,13 @@ module Cal4near
   )
     busy_list = []
     events(start_date, end_date).each do |event|
-
       # start endが両方ともdate型の場合は終日の予定
       is_all_date = (event.start.date && event.end.date)
 
       # [デバッグ用]カレンダーイベントの情報を出力する
       # stdout_calendar_info(event, is_all_date)
 
-      if !is_all_date
+      unless is_all_date
         busy_list << {
           start: event.start.date_time,
           end: event.end.date_time
@@ -98,22 +91,16 @@ module Cal4near
         # 現時刻より前はスキップ
         next if current_time.to_datetime < DateTime.now
 
-        free = true
-        result[date.strftime(DATE_FORMAT)][current_time.strftime(DATE_TIME_FORMAT)] = {}
+        date_key = date.strftime(DATE_FORMAT)
+        time_key = current_time.strftime(DATE_TIME_FORMAT)
+        result[date_key][time_key] = { free: true }
 
         busy_list.each do |busy|
-          busy_start = busy[:start]
-          busy_end = busy[:end]
-          current_datetime = current_time.to_datetime
-          next_datetime = next_time.to_datetime
-
-          if current_datetime < busy_end && busy_start < next_datetime
-            free = false
+          if current_time.to_datetime < busy[:end] && busy[:start] < next_time.to_datetime
+            result[date_key][time_key][:free] = false
             break
           end
         end
-
-          result[date.strftime(DATE_FORMAT)][current_time.strftime(DATE_TIME_FORMAT)][:free] = free
       end
     end
     result
