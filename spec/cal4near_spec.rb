@@ -13,13 +13,13 @@ describe Cal4near do
     let(:end_date) { DateTime.now.next_day(30) }
 
     before do
-      allow(Cal4near).to receive(:events).and_return(moc_objs)
+      allow(Cal4near).to receive(:events).and_return(moc_google_events)
     end
 
     subject { Cal4near.events(start_date, end_date) }
 
     it "return correct count objects" do
-      expect(subject.length).to eq moc_objs.length
+      expect(subject.length).to eq moc_google_events.length
     end
 
     context 'first event' do
@@ -45,16 +45,5 @@ describe Cal4near do
         expect(subject_event.end.date_time).to eq DateTime.new(2022, 1, 2, 14, 00, 00)
       end
     end
-  end
-
-  def google_event(**params)
-    Google::Apis::CalendarV3::Event.new(**params)
-  end
-
-  def google_event_date_time(date_time=DateTime.now)
-      Google::Apis::CalendarV3::EventDateTime.new(
-        date_time: date_time,
-        time_zone: "Asia/Tokyo"
-      )
   end
 end

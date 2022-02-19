@@ -13,10 +13,21 @@ shared_context 'setup moc google event' do
       end:   google_event_date_time(DateTime.new(2022, 1, 2, 14, 00, 00))
     }
   }
-  let(:moc_objs) {
+  let(:moc_google_events) {
     [
       google_event(**event_params_1),
       google_event(**event_params_2),
     ]
   }
+end
+
+def google_event(**params)
+  Google::Apis::CalendarV3::Event.new(**params)
+end
+
+def google_event_date_time(date_time=DateTime.now)
+  Google::Apis::CalendarV3::EventDateTime.new(
+    date_time: date_time,
+    time_zone: "Asia/Tokyo"
+  )
 end
