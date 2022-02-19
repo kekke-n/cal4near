@@ -33,6 +33,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency 'google-api-client'
   spec.add_development_dependency 'dotenv'
-  spec.add_development_dependency 'byebug'
-
+  spec.add_development_dependency "debug"
 end

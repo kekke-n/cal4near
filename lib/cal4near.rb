@@ -6,6 +6,7 @@ require "googleauth"
 require "googleauth/stores/file_token_store"
 require "date"
 require "fileutils"
+require 'debug'
 
 module Cal4near
   class Error < StandardError; end
@@ -54,7 +55,7 @@ module Cal4near
   # 　{
   #     #<Date> => { <DateTime> => { :free => <Boolean> } }
   #   }
-  # @@example 返り値のサンプルは以下
+  # @example 返り値のサンプルは以下
   #   {
   #     #<Date: 2022-02-18> => { 2022-02-18 10:00:00 +0900=>{ :free => false }
   #   }
