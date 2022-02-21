@@ -84,7 +84,8 @@ module Cal4near
       start_work_time = Time.new(date.year, date.month, date.day, start_hour, 0, 0)
       end_work_time = Time.new(date.year, date.month, date.day, end_hour, 0, 0)
 
-      start_work_time.to_i.step(end_work_time.to_i, 60*60).each_cons(2) do |c_time_int, n_time_int|
+      step_secound = 60*60
+      start_work_time.to_i.step(end_work_time.to_i, step_secound).each_cons(2) do |c_time_int, n_time_int|
         current_time = Time.at(c_time_int)
         next_time = Time.at(n_time_int)
 
@@ -106,8 +107,9 @@ module Cal4near
     result
   end
 
-  def self.stdout
-    result = free_times
+  # @param [Hash] free_times
+  def self.stdout(times_info)
+    result = times_info
     wdays = %w(日 月 火 水 木 金 土)
     # 出力
     result.each do |date, times|
