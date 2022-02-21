@@ -1,7 +1,44 @@
 #!/usr/bin/env ruby
-
 require "bundler/setup"
 require "cal4near"
 
-times_info = Cal4near.free_times
+HELP_MSG =<<-MSG
+usage: cal4 [--free] [--busy]
+
+--free : Stdout free times from calendar api
+--busy : Stdout busy times from calendar api [WIP]
+MSG
+
+WRONG_ARG_ERR_MSG =<<-MSG
+[ERR]argument is wrong.
+MSG
+
+if ARGV.length > 0
+  case ARGV[0]
+  when '-h'
+    puts HELP_MSG
+    return
+  when '--free', '-f'
+    msg = "free times"
+    times_info = Cal4near.free_times
+  # when '--busy', 'b'
+    # TODO:busy_timesの実装
+    # msg = "busy times"
+    # times_info = Cal4near.busy_times
+  else
+    puts WRONG_ARG_ERR_MSG
+    puts HELP_MSG
+    return
+  end
+else
+  msg = "free times"
+  times_info = Cal4near.free_times
+end
+
+puts <<-MSG
+--------------
+#{msg}
+--------------
+MSG
+
 Cal4near.stdout(times_info)
