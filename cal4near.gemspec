@@ -29,9 +29,10 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
+  spec.add_dependency 'google-api-client'
+
   spec.add_development_dependency "rake", "~> 13.0"
   spec.add_development_dependency "rspec", "~> 3.0"
-  spec.add_development_dependency 'google-api-client'
   spec.add_development_dependency 'dotenv'
   spec.add_development_dependency "pry"
   spec.add_development_dependency 'pry-byebug'
