@@ -5,6 +5,7 @@ shared_context 'setup moc google event' do
   let(:day_after_tomorrow) { today.next_day(2) }
   let(:day_after_tomorrow_ymd) {
     [day_after_tomorrow.year, day_after_tomorrow.month, day_after_tomorrow.day] }
+  let(:in_three_days) { today.next_day(3) }
 
   # 2022 1/1 10:00 - 11:00
   let(:event_params_1) {

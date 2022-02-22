@@ -22,11 +22,12 @@ if ARGV.length > 0
     return
   when 'free', 'f'
     msg = "free times"
-    times_info = Cal4near.free_times
-  # when 'busy', 'b'
-    # TODO:busy_timesの実装
-    # msg = "busy times"
-    # times_info = Cal4near.busy_times
+    times_info = Cal4near.free_busy_times
+    is_free = true
+  when 'busy', 'b'
+    msg = "busy times"
+    times_info = Cal4near.free_busy_times
+    is_free = false
   else
     puts WRONG_ARG_ERR_MSG
     puts HELP_MSG
@@ -44,4 +45,4 @@ puts <<-MSG
 --------------
 MSG
 
-Cal4near.stdout(times_info)
+puts Cal4near.format(times_info, is_free)

@@ -22,7 +22,7 @@ module Cal4near
   SCOPE = Google::Apis::CalendarV3::AUTH_CALENDAR_READONLY
 
   # 空き時間を検索する日時の範囲
-  START_DATE = DateTime.now
+  START_DATE = DateTime.now.next_day(1)
   END_DATE = DateTime.now.next_day(30)
 
   # 空き時間を検索する時間の範囲
@@ -53,11 +53,12 @@ module Cal4near
   # @return [Hash]
   # @example 返り値のサンプルは以下
   #  "2022-03-21"=> {"2022-03-21 09:00"=>{:free=>true}
-  def self.free_times(
+  def self.free_busy_times(
     start_date = START_DATE,
     end_date = END_DATE,
     start_hour = START_HOUR,
-    end_hour = END_HOUR
+    end_hour = END_HOUR,
+    max_date_count = 100
   )
     busy_list = []
     events(start_date, end_date).each do |event|
@@ -78,7 +79,9 @@ module Cal4near
     # puts "Free time:"
 
     result = {}
-    (start_date.to_date..end_date.to_date).each do |date|
+    (start_date.to_date..end_date.to_date).each.with_index(1) do |date, i|
+      break if i > max_date_count
+
       result[date.strftime(DATE_FORMAT)] ||= {} # YYYY-MM-DD
 
       start_work_time = Time.new(date.year, date.month, date.day, start_hour, 0, 0)
@@ -107,19 +110,19 @@ module Cal4near
     result
   end
 
-  # @param [Hash] free_times
-  def self.stdout(times_info)
+  # @param [Hash] free_busy_times
+  def self.format(times_info, is_free = true)
     result = times_info
     wdays = %w(日 月 火 水 木 金 土)
     # 出力
-    result.each do |date, times|
+    date_time_info = result.map do |date, times|
       min_time = max_time = nil
       spans = []
       times.each do |time, info|
         time = DateTime.parse(time)
         min_time ||= time
         max_time = time
-        if info[:free]
+        if (is_free && info[:free]) || (!is_free && !info[:free])
           next
         else
           if min_time && max_time && min_time < max_time
@@ -134,8 +137,11 @@ module Cal4near
       end
 
       tmp_date = Date.parse(date)
-      puts "#{tmp_date.strftime("%Y/%m/%d")}(#{wdays[tmp_date.wday]}) #{spans.join(", ")}"
+      spans_text = spans.empty? ? "" : " #{spans.join(", ")}"
+      "#{tmp_date.strftime("%Y/%m/%d")}(#{wdays[tmp_date.wday]})#{spans_text}"
     end
+
+    date_time_info.join("\n")
   end
 
   ##
