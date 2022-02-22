@@ -3,10 +3,12 @@ require "bundler/setup"
 require "cal4near"
 
 HELP_MSG =<<-MSG
-usage: cal4 [--free] [--busy]
+usage: cal4 [free|busy] [-h]
 
---free : Stdout free times from calendar api
---busy : Stdout busy times from calendar api [WIP]
+free : Stdout free times from calendar api
+busy : Stdout busy times from calendar api [WIP]
+
+-h : show help
 MSG
 
 WRONG_ARG_ERR_MSG =<<-MSG
@@ -18,10 +20,10 @@ if ARGV.length > 0
   when '-h'
     puts HELP_MSG
     return
-  when '--free', '-f'
+  when 'free', 'f'
     msg = "free times"
     times_info = Cal4near.free_times
-  # when '--busy', 'b'
+  # when 'busy', 'b'
     # TODO:busy_timesの実装
     # msg = "busy times"
     # times_info = Cal4near.busy_times
@@ -31,8 +33,9 @@ if ARGV.length > 0
     return
   end
 else
-  msg = "free times"
-  times_info = Cal4near.free_times
+  puts WRONG_ARG_ERR_MSG
+  puts HELP_MSG
+  return
 end
 
 puts <<-MSG
