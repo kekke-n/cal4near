@@ -1,53 +1,77 @@
 # Cal4near
 
-Googleカレンダーの情報をコンソールから取得するツール
+(実装中....)
 
-(作成中)
+Googleカレンダーの情報をコンソールへ出力するツール
 
-予定が入っていない時間を出力する
+### 主な機能
+- 空いている時間を出力する
+- [WIP]予定がある時間を出力する
 
-```
-$bin/cal4
-2021/10/28(木) 16:00-17:00, 18:00-19:00
-2021/10/29(金) 11:00-16:00, 17:00-19:00
-2021/10/30(土) 9:00-19:00
-2021/10/31(日) 9:00-19:00
-2021/11/01(月) 12:00-14:00, 17:00-19:00
-2021/11/02(火) 11:00-16:00
-2021/11/03(水) 12:00-19:00
-2021/11/04(木) 11:00-19:00
+### 出力例
 
 ```
+--------------
+free times
+--------------
+2022/02/21(月) 
+2022/02/22(火) 12:00-17:00
+2022/02/23(水) 11:00-13:00, 14:00-18:00
+2022/02/24(木) 
+2022/02/25(金) 
+2022/02/26(土) 9:00-18:00
+2022/02/27(日) 9:00-18:00
+2022/02/28(月) 11:00-14:00, 16:00-18:00
+2022/03/01(火) 12:00-17:00
+2022/03/02(水) 11:00-18:00
+2022/03/03(木) 12:00-14:00, 15:00-17:00
 
-## Installation
-
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'cal4near'
 ```
 
-And then execute:
-
-    $ bundle install
-
-Or install it yourself as:
+## インストール
 
     $ gem install cal4near
 
-## Usage
+## 事前準備
 
-TODO: Write usage instructions here
+(作成中)
 
-## Development
+## 使い方
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+### 空いている時間を取得
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+以下のいずれかのコマンドを実行
+
+```
+cal4 
+```
+```
+cal4 --free
+```
+
+出力例
+
+
+```
+--------------
+free times
+--------------
+2022/02/21(月) 
+2022/02/22(火) 12:00-17:00
+2022/02/23(水) 11:00-13:00, 14:00-18:00
+2022/02/24(木) 
+2022/02/25(金) 
+2022/02/26(土) 9:00-18:00
+2022/02/27(日) 9:00-18:00
+2022/02/28(月) 11:00-14:00, 16:00-18:00
+2022/03/01(火) 12:00-17:00
+2022/03/02(水) 11:00-18:00
+2022/03/03(木) 12:00-14:00, 15:00-17:00
+```
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/cal4near.
+Bug reports and pull requests are welcome on GitHub at https://github.com/nakamaksk/cal4near.
 
 ## License
 
