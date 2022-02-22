@@ -6,8 +6,6 @@ require "googleauth"
 require "googleauth/stores/file_token_store"
 require "date"
 require "fileutils"
-# require 'pry'
-# require 'pry-byebug'
 
 module Cal4near
   class Error < StandardError; end

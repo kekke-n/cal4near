@@ -3,12 +3,12 @@ require "bundler/setup"
 require "cal4near"
 
 HELP_MSG =<<-MSG
-usage: cal4 [free|busy] [-h]
+usage: cal4 [ free, f | busy, b ] [ -h ]
 
-free : Stdout free times from calendar api
-busy : Stdout busy times from calendar api [WIP]
+free, f : Stdout free times from Google Calendar api
+busy, b : Stdout busy times from Google Calendar api
 
--h : show help
+-h : Show help
 MSG
 
 WRONG_ARG_ERR_MSG =<<-MSG
@@ -40,9 +40,9 @@ else
 end
 
 puts <<-MSG
---------------
-#{msg}
---------------
+----------------------------
+#{msg} (9:00 - 19:00) 
+----------------------------
 MSG
 
 puts Cal4near.format(times_info, is_free)
