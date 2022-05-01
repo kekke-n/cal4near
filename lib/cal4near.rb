@@ -61,11 +61,13 @@ module Cal4near
     busy_list = []
     events(start_date, end_date).each do |event|
       # start endが両方ともdate型の場合は終日の予定
-      next if event.start.date && event.end.date
-      busy_list << {
-        start: event.start.date_time,
-        end: event.end.date_time
-      }
+      is_all_day = event.start.date && event.end.date
+      unless is_all_day
+        busy_list << {
+          start: event.start.date_time,
+          end: event.end.date_time
+        }
+      end
     end
 
     result = {}
@@ -74,23 +76,20 @@ module Cal4near
 
       result[date.strftime(DATE_FORMAT)] ||= {} # YYYY-MM-DD
 
-      start_work_time = Time.new(date.year, date.month, date.day, start_hour, 0, 0)
-      end_work_time = Time.new(date.year, date.month, date.day, end_hour, 0, 0)
-
-      step_secound = 60*60
-      start_work_time.to_i.step(end_work_time.to_i, step_secound).each_cons(2) do |c_time_int, n_time_int|
-        current_time = Time.at(c_time_int)
-        next_time = Time.at(n_time_int)
+      # 1時間おきに予定がはいっていないか確認、予定がある場合はfree=falseにする
+      (start_hour..end_hour).each_cons(2) do |current_hour, next_hour|
+        current_time = DateTime.new(date.year, date.month, date.day, current_hour, 0, 0, "+09:00")
+        next_time = DateTime.new(date.year, date.month, date.day, next_hour, 0, 0, "+09:00")
 
         # 現時刻より前はスキップ
-        next if current_time.to_datetime < DateTime.now
+        next if current_time < DateTime.now
 
         date_key = date.strftime(DATE_FORMAT)
         time_key = current_time.strftime(DATE_TIME_FORMAT)
         result[date_key][time_key] = { free: true }
 
         busy_list.each do |busy|
-          if current_time.to_datetime < busy[:end] && busy[:start] < next_time.to_datetime
+          if current_time < busy[:end] && busy[:start] < next_time
             result[date_key][time_key][:free] = false
             break
           end
