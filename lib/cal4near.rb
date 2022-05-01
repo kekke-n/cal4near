@@ -71,26 +71,28 @@ module Cal4near
     end
 
     result = {}
-    (start_date.to_date..end_date.to_date).each.with_index(1) do |date, i|
-      break if i > max_date_count
 
-      result[date.strftime(DATE_FORMAT)] ||= {} # YYYY-MM-DD
+    # end_dateがmax_date_count以上の日数になる場合はmax_date_count文の日付だけ取得
+    last_date = [end_date.to_date, start_date.to_date.next_day(max_date_count-1)].min
+
+    (start_date.to_date..last_date).each do |date|
+      result_d = (result[date.strftime(DATE_FORMAT)] ||= {}) # YYYY-MM-DD
 
       # 1時間おきに予定がはいっていないか確認、予定がある場合はfree=falseにする
       (start_hour..end_hour).each_cons(2) do |current_hour, next_hour|
-        current_time = DateTime.new(date.year, date.month, date.day, current_hour, 0, 0, "+09:00")
-        next_time = DateTime.new(date.year, date.month, date.day, next_hour, 0, 0, "+09:00")
-
+        date_params = [date.year, date.month, date.day]
+        time_params = [0, 0, "+09:00"]
+        current_time = DateTime.new(*date_params, current_hour, *time_params)
+        next_time = DateTime.new(*date_params, next_hour, *time_params)
         # 現時刻より前はスキップ
         next if current_time < DateTime.now
 
-        date_key = date.strftime(DATE_FORMAT)
         time_key = current_time.strftime(DATE_TIME_FORMAT)
-        result[date_key][time_key] = { free: true }
+        result_d_t = (result_d[time_key] = { free: true })
 
         busy_list.each do |busy|
           if current_time < busy[:end] && busy[:start] < next_time
-            result[date_key][time_key][:free] = false
+            result_d_t[:free] = false
             break
           end
         end
