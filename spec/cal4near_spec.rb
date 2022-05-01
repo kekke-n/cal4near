@@ -11,12 +11,18 @@ describe Cal4near do
 
     let(:start_date) { DateTime.now.next_day(1) }
     let(:end_date) { DateTime.now.next_day(30) }
+    let(:params) {
+      {
+        start_date: start_date,
+        end_date: end_date
+      }
+    }
 
     before do
       allow(Cal4near).to receive(:events).and_return(moc_google_events)
     end
 
-    let(:free_busy_times) { Cal4near.free_busy_times(start_date, end_date) }
+    let(:free_busy_times) { Cal4near.free_busy_times(**params) }
 
     context 'tomorrow' do
       let(:subject_date) { free_busy_times[tomorrow.strftime("%Y-%m-%d")] }
@@ -57,7 +63,18 @@ describe Cal4near do
 
     let(:max_date_count) { 3 }
     let(:wdays) { %w(日 月 火 水 木 金 土) }
-    let(:free_busy_times) { Cal4near.free_busy_times(start_date, end_date, Cal4near::START_HOUR, Cal4near::END_HOUR, max_date_count) }
+    let(:params) {
+      {
+        start_date: start_date,
+        end_date: end_date,
+        start_hour: Cal4near::START_HOUR,
+        end_hour: Cal4near::END_HOUR,
+        max_date_count: max_date_count
+      }
+    }
+    let(:free_busy_times) {
+
+      Cal4near.free_busy_times(**params) }
     let(:cal4_format) { Cal4near.format(free_busy_times, is_free) }
 
     let(:day1_format) { "#{tomorrow.strftime('%Y/%m/%d')}(#{wdays[tomorrow.wday]})" }

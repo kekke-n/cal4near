@@ -54,29 +54,19 @@ module Cal4near
   # @example 返り値のサンプルは以下
   #  "2022-03-21"=> {"2022-03-21 09:00"=>{:free=>true}
   def free_busy_times(
-    start_date = START_DATE,
-    end_date = END_DATE,
-    start_hour = START_HOUR,
-    end_hour = END_HOUR,
-    max_date_count = 100
+    start_date: START_DATE, end_date: END_DATE,
+    start_hour: START_HOUR, end_hour: END_HOUR,
+    max_date_count: 100
   )
     busy_list = []
     events(start_date, end_date).each do |event|
       # start endが両方ともdate型の場合は終日の予定
-      is_all_date = (event.start.date && event.end.date)
-
-      # [デバッグ用]カレンダーイベントの情報を出力する
-      # stdout_calendar_info(event, is_all_date)
-
-      unless is_all_date
-        busy_list << {
-          start: event.start.date_time,
-          end: event.end.date_time
-        }
-      end
+      next if event.start.date && event.end.date
+      busy_list << {
+        start: event.start.date_time,
+        end: event.end.date_time
+      }
     end
-
-    # puts "Free time:"
 
     result = {}
     (start_date.to_date..end_date.to_date).each.with_index(1) do |date, i|
