@@ -27,11 +27,13 @@ module Cal4near
   START_HOUR = 9
   END_HOUR = 19
 
+  module_function
+
   # カレンダーに登録されているイベントを取得
   # @param [DateTime] start_date 対象期間の開始日時
   # @param [DateTime] end_date 対象期間の終了日時
   # @return [Array] Google::Apis::CalendarV3::Eventのリスト
-  def self.events(start_date, end_date)
+  def events(start_date, end_date)
     service = Google::Apis::CalendarV3::CalendarService.new
     service.client_options.application_name = APPLICATION_NAME
     service.authorization = authorize
@@ -51,7 +53,7 @@ module Cal4near
   # @return [Hash]
   # @example 返り値のサンプルは以下
   #  "2022-03-21"=> {"2022-03-21 09:00"=>{:free=>true}
-  def self.free_busy_times(
+  def free_busy_times(
     start_date = START_DATE,
     end_date = END_DATE,
     start_hour = START_HOUR,
@@ -109,7 +111,7 @@ module Cal4near
   end
 
   # @param [Hash] free_busy_times
-  def self.format(times_info, is_free = true)
+  def format(times_info, is_free = true)
     result = times_info
     wdays = %w(日 月 火 水 木 金 土)
     # 出力
@@ -148,7 +150,7 @@ module Cal4near
   # the user's default browser will be launched to approve the request.
   #
   # @return [Google::Auth::UserRefreshCredentials] OAuth2 credentials
-  def self.authorize
+  def authorize
     client_id = Google::Auth::ClientId.from_file CREDENTIALS_PATH
     token_store = Google::Auth::Stores::FileTokenStore.new file: TOKEN_PATH
     authorizer = Google::Auth::UserAuthorizer.new client_id, SCOPE, token_store
@@ -168,7 +170,7 @@ module Cal4near
 
   private
 
-  def self.stdout_calendar_info(event, is_all_date)
+  def stdout_calendar_info(event, is_all_date)
     start_date_time = event.start.date || event.start.date_time
     end_date_time = event.end.date || event.end.date_time
 
