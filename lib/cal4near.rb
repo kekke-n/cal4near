@@ -58,16 +58,10 @@ module Cal4near
     start_hour: START_HOUR, end_hour: END_HOUR,
     max_date_count: 100
   )
-    busy_list = []
-    events(start_date, end_date).each do |event|
+    busy_list = events(start_date, end_date).inject([]) do |list, event|
       # start endが両方ともdate型の場合は終日の予定
-      is_all_day = event.start.date && event.end.date
-      unless is_all_day
-        busy_list << {
-          start: event.start.date_time,
-          end: event.end.date_time
-        }
-      end
+      next list if event.start.date && event.end.date
+      list << { start: event.start.date_time, end: event.end.date_time }
     end
 
     result = {}
