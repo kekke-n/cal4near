@@ -64,12 +64,10 @@ module Cal4near
       list << { start: event.start.date_time, end: event.end.date_time }
     end
 
-    result = {}
-
     # end_dateがmax_date_count以上の日数になる場合はmax_date_count文の日付だけ取得
     last_date = [end_date.to_date, start_date.to_date.next_day(max_date_count-1)].min
 
-    (start_date.to_date..last_date).each do |date|
+    (start_date.to_date..last_date).inject({}) do |result, date|
       result_d = (result[date.strftime(DATE_FORMAT)] ||= {}) # YYYY-MM-DD
 
       # 1時間おきに予定がはいっていないか確認、予定がある場合はfree=falseにする
@@ -91,8 +89,8 @@ module Cal4near
           end
         end
       end
+      result
     end
-    result
   end
 
   # @param [Hash] free_busy_times
